@@ -1,0 +1,23 @@
+{
+  "name": "ninja-game",
+  "version": "1.0.0",
+  "description": "![CI logo](https://codeinstitute.s3.amazonaws.com/fullstack/ci_logo_small.png)",
+  "main": "game.js",
+  "scripts": {
+    "start": "parcel index.html -p 8000",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EndaMagennis/ninja-game.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EndaMagennis/ninja-game/issues"
+  },
+  "homepage": "https://github.com/EndaMagennis/ninja-game#readme",
+  "dependencies": {
+    "kaboom": "^3000.0.14"
+  }
+}
