@@ -5437,6 +5437,7 @@ exports.default = mo;
 
 var _kaboom = _interopRequireDefault(require("kaboom"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+(0, _kaboom.default)();
 var k = (0, _kaboom.default)({
   width: 1280,
   height: 720
@@ -5444,6 +5445,19 @@ var k = (0, _kaboom.default)({
 k.scene('main', function () {
   k.add([text('Hello Kaboom', 32), pos(k.width() * 0.5, k.height() * 0.5), color(1, 1, 1, 1)]);
 });
+// a function to load all 60 swamp tiles to avoid repetition
+
+function loadAllTiles() {
+  var tilenumber = 0;
+  for (var i = 0; i < 60; i++) {
+    tilenumber++;
+    console.log(tilenumber);
+    loadSprite("tile-".concat(tilenumber), "assets/images/tiles/tile-".concat(tilenumber, ".png"));
+  }
+  ;
+}
+;
+loadAllTiles();
 k.go('main');
 },{"kaboom":"node_modules/kaboom/dist/kaboom.mjs"}],"../../../AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
@@ -5470,7 +5484,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59843" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59628" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
