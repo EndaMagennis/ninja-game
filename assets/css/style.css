@@ -11,3 +11,15 @@ body{
     background-color: blue;
 
 }
+
+#game {
+    background-image: url(../images/backgrounds/forest-bg.jpg);
+    background-size: fill;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display:block;
+    border-radius: 3px;
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+}
