@@ -1,14 +1,18 @@
 
 const k = kaboom({
-    width: 1280,
-    height: 720,
-    background:[35, 35, 35]
+    global: true,
+    fullscreen: true,
+    width: 600,
+    height: 400,
+    canvas: document.querySelector("#game"),
+    scale: 2,
+    debug: true,
+    background: [0, 0, 0, 0],
 });
 
 //loading background sprites
-loadSprite('bg', 'assets/images/backgrounds/forest-bg.png');
 
-//loading sprites for use in game.
+//loading sprites animations for use in game.
 loadSprite('playerIdle', 'assets/images/sprites/kunoichi/kunoichi-idle.png', {
     sliceX: 9, sliceY: 1,
     anims: {'idleAnim': {from: 0, to: 8, loop: true}}
@@ -21,8 +25,18 @@ loadSprite('playerRun', 'assets/images/sprites/kunoichi/kunoichi-run.png', {
 
 loadSprite('playerJump', 'assets/images/sprites/kunoichi/kunoichi-jump.png', {
     sliceX: 10, sliceY: 1,
-    anims: {'jumpAnim': {from: 0, to: 9, loop: true}}
+    anims: {'jumpAnim': {from: 1, to: 2, loop: false}}
 });
+
+loadSprite('playerDoubleJump', 'assets/images/sprites/kunoichi/kunoichi-jump.png', {
+    sliceX: 10, sliceY: 1,
+    anims: {'doubleJumpAnim': {from: 3, to: 9, loop: false}}
+});
+
+loadSprite('playerFall', 'assets/images/sprites/kunoichi/kunoichi-jump.png', {
+    sliceX: 10, sliceY: 1,
+    anims: {'fallAnim': {from: 8, to: 9, loop: true}}
+})
 
 // a function to load all 60 swamp tiles to avoid repetition
 function loadAllTiles(){
@@ -42,6 +56,7 @@ setGravity(1000);
 
 //creating a map constant for level1
 const map1 = [
+    
         "                                       ",
         "                                       ",
         "                                       ",
@@ -58,68 +73,90 @@ const map1 = [
         "                                       ",
         "                                       ",
         "                                       ",
-        "         /=                            ",
-        "        /##                            ",
-        "       /###                            ",
-        "      /####                            ",
+        "                                       ",
+        "                                       ",
+        "                                       ",
+        "                                       ",
+        "                                       ",
+        "                                       ",
+        "                                       ",
         "===========   =========================",
     ];
 
 //creating a constant for level configurations
 const levelConfig = {
-    tileWidth:32,
-    tileHeight:32,
+    tileWidth:16,
+    tileHeight:16,
     tiles: {
         "=": () => [
             sprite('swampTile2'),
             area(),
-            body().static =true,
-            scale(1),
+            body({isStatic: true}),
+            scale(0.5),
             "ground",
         ],
         "/": () => [
             sprite('swampTile47'),
-            area(),
-            body().static = true,
-            scale(1),
+            scale(0.5),
             "ramp"
         ],
         "|": () => [
             sprite('swampTile49'),
-            area(),
-            body().static = true,
-            scale(1),
+            scale(0.5),
         ],
         "#": ()=>[
             sprite('swampTile12'),
-            area(),
-            scale(1),
+            scale(0.5),
         ],
 
     }
 };
-
+//creates a player object
 const player = add([
     sprite('playerIdle'),//default animation
     area({shape: new Rect(vec2(0), 32, 32), offset: vec2(0,32)}),//sets a rectangle to collide
-    scale(1),
+    scale(0.5),
     anchor('center'),//anchors rectangle to center of sprite
     body(),// gives player physics
-    pos(101, 100),// starting position
+    pos(101, 300),// starting position
     {
-        speed: 500,
+        speed: 200,
         previousHeight: null,
         heightDelta: 0,
-        direction: 'right'
+        direction: 'right',
+        jumpCount: 0,
     },
     "player",
 ]);
 player.play('idleAnim');
 
-// handle player inputs
+//onUpdate is called every frame
+onUpdate(() =>{
+    if(player.curAnim() !== 'runAnim' && player.isGrounded()){
+        player.use(sprite('playerIdle'));
+        player.play('idleAnim');
+    }
+
+    if(player.curAnim() !== 'jumpAnim' && !player.isGrounded() && player.heightDelta > 0) {
+        player.use(sprite('playerJump'));
+        player.play('jumpAnim');
+    }
+
+    if(player.curAnim() !== 'fallAnim' && !player.isGrounded() && player.heightDelta < 0) {
+        player.use(sprite('playerFall'));
+        player.play('fallAnim');
+    }
+
+    if(player.direction === 'left'){
+        player.flipX = true;
+    } else{
+        player.flipX = false;
+    }
+});
+
 function handleInputs(){
     onKeyDown('d', () => {
-        if(player.curAnim() !== 'runAnim'){
+        if(player.curAnim() !== 'runAnim' && player.isGrounded()){
             player.use(sprite('playerRun'));
             player.play('runAnim');
         };
@@ -133,32 +170,45 @@ function handleInputs(){
         player.play('idleAnim');
     });
 
+    onKeyDown('a', () => {
+        if(player.curAnim() !== 'runAnim' && player.isGrounded()){
+            player.use(sprite('playerRun'));
+            player.play('runAnim');
+        };
+
+        if (player.direction !== 'left') player.direction = 'left';
+        player.move(-player.speed, 0);
+    });
+
+    onKeyRelease('a', () => {
+        player.use(sprite('playerIdle'));
+        player.play('idleAnim');
+    });
+
     onKeyPress("space", () =>{
-        if(player.curAnim() !== 'jumpAnim'){
+        if(player.curAnim() !== 'jumpAnim' && player.isGrounded()){
             player.use(sprite('playerJump'));
             player.play('jumpAnim');
-        };
-        player.jump();
-    });
-}
+            player.jump(400);
+            player.jumpCount++;
+        }
+                
+    })
+    onKeyPress("space", () =>{
+        if(player.curAnim() === 'jumpAnim' && player.jumpCount <=1 && !player.isGrounded()){
+            player.use(sprite('playerDoubleJump'));
+            player.play('doubleJumpAnim');
+            player.jump(400);
+            player.jumpCount = 0;
+        }
+    })
+} 
 //creating a level configuration constant 
-
-//main function to run the game
-k.scene('main', () => {
-    //add level function takes map and level config to build a level
-    onCollide("player", "ground", ()=> {
+onCollide("player", "ground", ()=> {
         player.isGrounded();
-        console.log("hasLanded")
-    });
-
-    add([
-        sprite('bg'),
-    ])
-    add(player);
-    
-    addLevel(map1, levelConfig);
-    
-    handleInputs();
+        console.log("hasLanded");
 });
 
-k.go('main');
+addLevel(map1, levelConfig);
+    
+handleInputs();
