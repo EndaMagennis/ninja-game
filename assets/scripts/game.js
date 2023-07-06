@@ -5,6 +5,9 @@ const k = kaboom({
     background:[35, 35, 35]
 });
 
+//loading background sprites
+loadSprite('bg', 'assets/images/backgrounds/forest-bg.png');
+
 //loading sprites for use in game.
 loadSprite('playerIdle', 'assets/images/sprites/kunoichi/kunoichi-idle.png', {
     sliceX: 9, sliceY: 1,
@@ -30,8 +33,10 @@ function loadAllTiles(){
         console.log("loadedtile: " + tilenumber);
     };
 };
+
 //calling the loadAllTiles function
 loadAllTiles();
+
 //setting gravity 
 setGravity(1000);
 
@@ -60,71 +65,33 @@ const map1 = [
         "===========   =========================",
     ];
 
-const player = add([
-    sprite('playerIdle'),
-    area({shape: new Rect(k.vec2(0), 32, 32), offset: k.vec2(0,32)}),
-    scale(1),
-    anchor('center'),
-    body(),
-    pos(101, 100),
-    {
-        speed: 500,
-        previousHeight: null,
-        heightDelta: 0,
-        direction: 'right'
-    },
-    
-]);
-player.play('idleAnim');
-
-player.isGrounded();
-
-// handle player inputs
-function handleInputs(){
-    onKeyDown('key.d', () => {
-        if(player.curAnim() !== 'runAnim' && player.isGrounded()){
-            player.use(sprite('playerRun'));
-            player.play('runAnim')
-        }
-
-        if (player.direction !== 'right') player.direction = 'right';
-        player.move(player.speed, 0);
-    })
-
-    onKeyRelease('d', () => {
-        player.use(sprite('playerIdle'));
-        player.play('idleAnim');
-    })
-
-    onKeyPress("space", () =>{
-        if(player.anim());
-        player.jump();
-    }) 
-}
-//creating a level configuration constant 
+//creating a constant for level configurations
 const levelConfig = {
     tileWidth:32,
     tileHeight:32,
     tiles: {
         "=": () => [
-            ground = sprite('swampTile2'),
+            sprite('swampTile2'),
             area(),
+            body().static =true,
             scale(1),
+            "ground",
         ],
         "/": () => [
-            rampUp = sprite('swampTile47'),
+            sprite('swampTile47'),
             area(),
             body().static = true,
             scale(1),
+            "ramp"
         ],
         "|": () => [
-            rampDown = sprite('swampTile49'),
+            sprite('swampTile49'),
             area(),
             body().static = true,
             scale(1),
         ],
         "#": ()=>[
-            dirt = sprite('swampTile12'),
+            sprite('swampTile12'),
             area(),
             scale(1),
         ],
@@ -132,13 +99,65 @@ const levelConfig = {
     }
 };
 
+const player = add([
+    sprite('playerIdle'),//default animation
+    area({shape: new Rect(vec2(0), 32, 32), offset: vec2(0,32)}),//sets a rectangle to collide
+    scale(1),
+    anchor('center'),//anchors rectangle to center of sprite
+    body(),// gives player physics
+    pos(101, 100),// starting position
+    {
+        speed: 500,
+        previousHeight: null,
+        heightDelta: 0,
+        direction: 'right'
+    },
+    "player",
+]);
+player.play('idleAnim');
 
+// handle player inputs
+function handleInputs(){
+    onKeyDown('d', () => {
+        if(player.curAnim() !== 'runAnim'){
+            player.use(sprite('playerRun'));
+            player.play('runAnim');
+        };
+
+        if (player.direction !== 'right') player.direction = 'right';
+        player.move(player.speed, 0);
+    });
+
+    onKeyRelease('d', () => {
+        player.use(sprite('playerIdle'));
+        player.play('idleAnim');
+    });
+
+    onKeyPress("space", () =>{
+        if(player.curAnim() !== 'jumpAnim'){
+            player.use(sprite('playerJump'));
+            player.play('jumpAnim');
+        };
+        player.jump();
+    });
+}
+//creating a level configuration constant 
 
 //main function to run the game
 k.scene('main', () => {
     //add level function takes map and level config to build a level
-    addLevel(map1, levelConfig);
+    onCollide("player", "ground", ()=> {
+        player.isGrounded();
+        console.log("hasLanded")
+    });
+
+    add([
+        sprite('bg'),
+    ])
     add(player);
+    
+    addLevel(map1, levelConfig);
+    
     handleInputs();
 });
 
