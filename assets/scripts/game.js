@@ -154,61 +154,73 @@ onUpdate(() =>{
     }
 });
 
-function handleInputs(){
-    onKeyDown('d', () => {
+function idle(){
+        player.use(sprite('playerIdle'));
+        player.play('idleAnim');
+};
+
+function moveRight(){
         if(player.curAnim() !== 'runAnim' && player.isGrounded()){
             player.use(sprite('playerRun'));
             player.play('runAnim');
         };
 
         if (player.direction !== 'right') player.direction = 'right';
-        player.move(player.speed, 0);
-    });
+        player.move(player.speed, 0);       
+};
 
-    onKeyRelease('d', () => {
-        player.use(sprite('playerIdle'));
-        player.play('idleAnim');
-    });
-
-    onKeyDown('a', () => {
+function moveLeft(){
         if(player.curAnim() !== 'runAnim' && player.isGrounded()){
             player.use(sprite('playerRun'));
             player.play('runAnim');
-        };
+        }
 
         if (player.direction !== 'left') player.direction = 'left';
         player.move(-player.speed, 0);
-    });
+};
 
-    onKeyRelease('a', () => {
-        player.use(sprite('playerIdle'));
-        player.play('idleAnim');
-    });
-
-    onKeyPress("space", () =>{
+function playerJump(){
         if(player.curAnim() !== 'jumpAnim' && player.isGrounded()){
             player.use(sprite('playerJump'));
             player.play('jumpAnim');
             player.jump(400);
             player.jumpCount++;
         }
-                
-    })
-    onKeyPress("space", () =>{
+
         if(player.curAnim() === 'jumpAnim' && player.jumpCount <=1 && !player.isGrounded()){
             player.use(sprite('playerDoubleJump'));
             player.play('doubleJumpAnim');
             player.jump(400);
             player.jumpCount = 0;
         }
+};
+
+function handleInputs(){
+    onKeyDown('d',() =>{
+        moveRight();
     })
-} 
+
+    onKeyRelease('d', () => {
+        idle();
+    })
+
+    onKeyDown('a',() =>{
+        moveLeft();
+    })
+
+    onKeyRelease('a', () => {
+        idle();
+    })
+
+    onKeyPress('space', () => {
+        playerJump();
+    })
+};
 //creating a level configuration constant 
 onCollide("player", "ground", ()=> {
         player.isGrounded();
         console.log("hasLanded");
 });
-
-addLevel(map1, levelConfig);
-    
 handleInputs();
+addLevel(map1, levelConfig);
+
