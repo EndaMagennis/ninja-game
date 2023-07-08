@@ -13,8 +13,9 @@ body{
 }
 
 #game {
+    display: flex;
     background-image: url(../images/backgrounds/forest-bg.jpg);
-    background-size: fill;
+    background-size: cover;
     padding-left: 0;
     padding-right: 0;
     margin-left: auto;
