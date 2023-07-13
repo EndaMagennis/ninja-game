@@ -46,7 +46,9 @@ loadSprite('playerFall', 'assets/images/sprites/kunoichi/kunoichi-jump.png', {
     sliceX: 10, sliceY: 1,
     anims: {'fallAnim': {from: 8, to: 9, loop: true}}
 })
+
 //creating a map constant for level
+// the symbols between the quotes represent the level assets, and their values are created below
 const map1 = [
     
         "                                       ",
@@ -77,7 +79,7 @@ const levelConfig = {
     tileWidth:16,
     tileHeight:16,
     tiles: {
-        "=": () => [
+        "=": () => [//setting the '=' symbol to represent the ground
             sprite('swampTile2'),
             area(),
             body({isStatic: true}),
@@ -120,28 +122,28 @@ const player = add([
 ]);
 const leftButton = add([
     sprite('leftArrow'),
-    pos(50, height() -50),
+    pos(180, height() -100),
     opacity(0.5),
     fixed(),
     area()
 ])
 const rightButton = add([
     sprite('rightArrow'),
-    pos(90, height() -50),
+    pos(220, height() -100),
     opacity(0.5),
     fixed(),
     area()
 ])
 const button1 = add([
     sprite('button1'),
-    pos(width() -160, height() -50),
+    pos(width() -310, height() -100),
     opacity(0.5),
     fixed(),
     area()
 ])
 const button2 = add([
     sprite('button2'),
-    pos(width()-120, height() -50),
+    pos(width()-270, height() -100),
     opacity(0.5),
     fixed(),
     area()
@@ -152,7 +154,7 @@ function loadAllTiles(){
     for(let i=0; i < 60; i++){
         tilenumber++;
         loadSprite(`swampTile${tilenumber}`, `assets/images/tiles/swamp/swamp-tile-${tilenumber}.png`);
-        console.log("loadedtile: " + tilenumber);
+        console.log("loadedtile: " + tilenumber);//debug to ensure the function runs
     };
 };
 
@@ -162,17 +164,23 @@ loadAllTiles();
 //setting gravity 
 setGravity(1000);
 
-
+//settin the default animation to the player's idle
 player.play('idleAnim');
-handleInputs()
-camScale(1.5)
-//onUpdate is called every frame
+
+//calling the handle inputs function
+handleInputs();
+
+//setting the camera scale
+camScale(1.5);
+
+//onUpdate is built-in function which is called every frame
 onUpdate(() =>{
-    cameraConfig();
+    //
+
+    
 
     if(player.curAnim() !== 'runAnim' && player.isGrounded()){
-        player.use(sprite('playerIdle'));
-        player.play('idleAnim');
+        idle();
     };
 
     if(player.curAnim() !== 'jumpAnim' && !player.isGrounded() && player.heightDelta > 0) {
@@ -190,8 +198,11 @@ onUpdate(() =>{
     } else{
         player.flipX = false;
     };
+    //calls the cameraconfig method, but is causing a stutter and affecting animation
+    cameraConfig();
 });
 
+//function to follow player 
 function cameraConfig(){
     if(player.previousHeight){
         player.heightDelta = player.previousHeight - player.pos.y;
@@ -212,6 +223,7 @@ function cameraConfig(){
     }
 }
 
+//what to do when player is idle
 function idle(){
         player.use(sprite('playerIdle'));
         player.play('idleAnim');
@@ -252,11 +264,15 @@ function playerJump(){
             player.jumpCount = 0;
         }
 };
-
+//handles player movement
 function handleInputs(){
     onKeyDown('d',() =>{
         moveRight();
     })
+
+    //onKeyDown('right', ()=>{
+    //    moveRight();
+    //})
 
     onKeyRelease('d', () => {
         idle();
@@ -275,30 +291,34 @@ function handleInputs(){
     })
 };
 
-function handleMobileInputs(){
-    onTouchStart((id,pos) =>{
-        if(leftButton.hasPoint(pos)){
-            moveLeft();
-            leftButton.opacity = 1;
-        } else if(rightButton.hasPoint(pos)){
-            moveRight();
-            rightButton.opacity = 1;
-        } else if(button1.hasPoint(pos)){
-            playerJump();
-        }
-    })
 
-    onTouchEnd((_, pos) => {
-        if(!leftButton.hasPoint(pos)){
-
-        }
-    })
-}
+//function handleMobileInputs(){
+//    onTouchStart((id,pos) =>{
+//        if(leftButton.hasPoint(pos)){
+//            keyDown.left = true;
+//            leftButton.opacity = 1;
+//        } else if(rightButton.hasPoint(pos)){
+//            keyDown.right = true;
+//            moveRight();
+//            rightButton.opacity = 1;
+//        } else if(button1.hasPoint(pos)){
+//            playerJump();
+//        }
+//    })
+//
+//    onTouchEnd((_, pos) => {
+//        if(!leftButton.hasPoint(pos)){
+//
+//        }
+//    })
+//}
 
 //creating a level configuration constant 
 onCollide("player", "ground", ()=> {
         player.isGrounded();
         console.log("hasLanded");
 });
+
+//adding the level
 addLevel(map1, levelConfig);
 
